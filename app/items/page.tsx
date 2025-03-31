@@ -16,11 +16,13 @@ interface Item {
 }
 
 interface CartItem {
+  _id: string;  // Add _id field
   name: string;
   size: string;
   price: number;
   quantity: number;
 }
+
 
 export default function ItemsPage() {
   const [items, setItems] = useState<Item[]>([]);
@@ -64,37 +66,37 @@ export default function ItemsPage() {
       alert("Please select an item, size, and valid quantity.");
       return;
     }
-
+  
     const item = items.find((i) => i._id === selectedItem);
     if (!item) return;
-
+  
     const variant = item.variants.find((v) => v.size === selectedVariant);
     if (!variant) return;
-
+  
     const existingItemIndex = cart.findIndex(
-      (cartItem) => cartItem.size === selectedVariant
+      (cartItem) => cartItem._id === item._id && cartItem.size === selectedVariant
     );
-
+  
     let newCart = [...cart];
-
+  
     if (existingItemIndex !== -1) {
-      // If item exists, update quantity
       newCart[existingItemIndex].quantity += quantity;
     } else {
-      // If item is new, add to cart
       newCart.push({
+        _id: item._id, // Include _id
         name: item.name,
         size: selectedVariant,
         price: variant.price,
         quantity,
       });
     }
-
+  
     setCart(newCart);
     setSelectedItem("");
     setSelectedVariant("");
     setQuantity(1);
   };
+  
 
   const handleRemoveFromCart = (index: number) => {
     setCart(cart.filter((_, i) => i !== index));
@@ -105,13 +107,23 @@ export default function ItemsPage() {
       alert("Please enter customer details and add items to the cart.");
       return;
     }
+  
     console.log("Submitting Order:", { customerName, seatNumber, items: cart });
   
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerName, seatNumber, items: cart }),
+        body: JSON.stringify({
+          customerName,
+          seatNumber,
+          items: cart.map((item) => ({
+            item: item._id, // Send _id instead of name
+            size: item.size,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+        }),
       });
   
       const responseData = await response.json();
@@ -131,6 +143,7 @@ export default function ItemsPage() {
       alert("An error occurred while placing the order.");
     }
   };
+  
   
 
   return (
