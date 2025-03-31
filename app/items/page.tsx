@@ -120,7 +120,7 @@ export default function ItemsPage() {
           items: cart.map((item) => ({
             item: item._id, // Send _id instead of name
             size: item.size,
-            price: item.price,
+            name: item.name,
             quantity: item.quantity,
           })),
         }),
