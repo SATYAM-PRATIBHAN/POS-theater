@@ -16,7 +16,7 @@ interface Item {
 }
 
 interface CartItem {
-  _id: string;  // Add _id field
+  _id: string;  
   name: string;
   size: string;
   price: number;
@@ -83,7 +83,7 @@ export default function ItemsPage() {
       newCart[existingItemIndex].quantity += quantity;
     } else {
       newCart.push({
-        _id: item._id, // Include _id
+        _id: item._id, 
         name: item.name,
         size: selectedVariant,
         price: variant.price,
@@ -118,7 +118,7 @@ export default function ItemsPage() {
           customerName,
           seatNumber,
           items: cart.map((item) => ({
-            item: item._id, // Send _id instead of name
+            item: item._id, 
             size: item.size,
             name: item.name,
             quantity: item.quantity,
@@ -144,11 +144,8 @@ export default function ItemsPage() {
     }
   };
   
-  
-
   return (
     <div className="flex min-h-screen p-6 gap-6">
-      {/* Sidebar for Filters */}
       <div className="w-1/4 p-4 border rounded-lg shadow-md">
         <h2 className="text-lg font-bold mb-4">Filter Items</h2>
         <label>Category:</label>
@@ -174,8 +171,6 @@ export default function ItemsPage() {
           <option value="L">L</option>
         </select>
       </div>
-
-      {/* Items List */}
       <div className="w-1/2 p-4 border rounded-lg shadow-md max-h-screen overflow-y-auto">
         <h2 className="text-lg font-bold mb-4">Available Items</h2>
         {loading ? (
@@ -201,8 +196,6 @@ export default function ItemsPage() {
           </ul>
         )}
       </div>
-
-      {/* Order Form */}
       <div className="w-1/4 p-4 border rounded-lg shadow-md">
         <h2 className="text-lg font-bold mb-4">Add to Cart</h2>
         <input
@@ -219,13 +212,12 @@ export default function ItemsPage() {
           value={seatNumber}
           onChange={(e) => setSeatNumber(e.target.value)}
         />
-        {/* Dropdown for Item Selection */}
         <select
           className="w-full p-2 border rounded mb-2"
           value={selectedItem}
           onChange={(e) => {
             setSelectedItem(e.target.value);
-            setSelectedVariant(""); // Reset variant when item changes
+            setSelectedVariant(""); 
           }}
         >
           <option value="">Select Item</option>
@@ -236,7 +228,6 @@ export default function ItemsPage() {
           ))}
         </select>
 
-        {/* Dropdown for Variant Selection */}
         {selectedItem && (
           <select
             className="w-full p-2 border rounded mb-2"
@@ -254,7 +245,6 @@ export default function ItemsPage() {
           </select>
         )}
 
-        {/* Quantity Input */}
         <input
           type="number"
           min="1"
@@ -268,7 +258,6 @@ export default function ItemsPage() {
           Add to Cart
         </button>
 
-        {/* Cart Display */}
         <h2 className="text-lg font-bold mb-4">Cart</h2>
         <ul>
           {cart.map((item, index) => (

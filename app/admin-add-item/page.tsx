@@ -22,7 +22,7 @@ export default function AddItemPage() {
   const handleVariantChange = (index: number, field: keyof Variant, value: string) => {
     const newVariants = [...variants];
     if (field === "price" || field === "stock") {
-      newVariants[index][field] = Number(value); // Convert to number
+      newVariants[index][field] = Number(value);
     } else {
       newVariants[index][field] = value;
     }
@@ -40,8 +40,6 @@ export default function AddItemPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Ensure "M" and "L" sizes exist with default values if not specified
     const sizes = ["S", "M", "L"];
     const updatedVariants = [...variants];
 
@@ -61,11 +59,11 @@ export default function AddItemPage() {
         alert("Item added successfully!");
         setName("");
         setCategory("Beverages");
-        setVariants([{ size: "S", price: 0, stock: 0 }]); // Reset to default
+        setVariants([{ size: "S", price: 0, stock: 0 }]);
     } else {
         alert("Failed to add item.");
     }
-};
+  };
 
 
   return (

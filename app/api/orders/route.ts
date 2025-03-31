@@ -5,7 +5,7 @@ import order from "@/model/order";
 import item from "@/model/item";
 
 export async function POST(req: NextRequest) {
-  const session = await mongoose.startSession(); // Start session
+  const session = await mongoose.startSession();
   try {
     await connectDB();
     session.startTransaction();
@@ -57,8 +57,6 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
-
-      // Deduct stock
       variant.stock -= newItem.quantity;
       await foundItem.save({ session });
 

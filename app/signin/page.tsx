@@ -6,12 +6,10 @@ export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); // Default to user
+  const [role, setRole] = useState("user");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    // Hardcoded credentials
     const adminCreds = { email: "admin@example.com", password: "admin123" };
     const userCreds = { email: "user@example.com", password: "user123" };
   

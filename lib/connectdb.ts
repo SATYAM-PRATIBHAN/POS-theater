@@ -15,7 +15,6 @@ declare global {
   var mongoose: MongooseCache;
 }
 
-
 global.mongoose = global.mongoose || { conn: null, promise: null };
 
 async function connectDB(): Promise<typeof mongoose> {
@@ -24,7 +23,7 @@ async function connectDB(): Promise<typeof mongoose> {
   }
 
   if (!global.mongoose.promise) {
-    mongoose.set("strictQuery", true); // Recommended for Mongoose 7+
+    mongoose.set("strictQuery", true);
     global.mongoose.promise = mongoose.connect(DATABASE_URL ?? "", {
       bufferCommands: false,
     });

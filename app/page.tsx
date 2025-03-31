@@ -36,7 +36,6 @@ export default function HomePage() {
       <div className={`grid ${isAdmin ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1"} gap-6 w-full max-w-2xl justify-center`}> 
         {isAdmin && (
           <>
-            {/* Admin Add Item */}
             <Link
               href="/admin-add-item"
               className="block bg-white p-6 rounded-lg shadow-lg text-center hover:bg-gray-200 transition"
@@ -45,7 +44,6 @@ export default function HomePage() {
               <p className="text-gray-600 text-sm">Add new items to the menu.</p>
             </Link>
             
-            {/* Admin Orders */}
             <Link
               href="/admin-orders"
               className="block bg-white p-6 rounded-lg shadow-lg text-center hover:bg-gray-200 transition"
@@ -56,7 +54,6 @@ export default function HomePage() {
           </>
         )}
         
-        {/* Items List - Visible to both Admin and User */}
         <Link
           href="/items"
           className="block bg-white p-6 rounded-lg shadow-lg text-center hover:bg-gray-200 transition"

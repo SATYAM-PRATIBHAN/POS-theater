@@ -35,7 +35,7 @@ export async function POST(req: Request) {
                 }
             });
 
-            await existingItem.save(); // ✅ Save updated item
+            await existingItem.save();
             return new Response(JSON.stringify({ message: "Item updated successfully", item: existingItem }), { status: 200 });
         } else {
             const newItem = new item({

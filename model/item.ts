@@ -5,7 +5,6 @@ interface Variant {
   price: number;
   stock: number;
 }
-
 export interface IItem extends Document {
   name: string;
   category: string;
