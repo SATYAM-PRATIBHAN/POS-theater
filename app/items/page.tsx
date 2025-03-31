@@ -246,7 +246,7 @@ export default function ItemsPage() {
           type="number"
           min="1"
           className="w-full p-2 border rounded mb-2"
-          value={quantity}
+          placeholder="Quantity"
           onChange={(e) => setQuantity(Number(e.target.value))}
         />
 
