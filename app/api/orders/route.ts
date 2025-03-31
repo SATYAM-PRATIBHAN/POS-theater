@@ -1,45 +1,71 @@
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
 import connectDB from "@/lib/connectdb";
 import order from "@/model/order";
 import item from "@/model/item";
 
 export async function POST(req: NextRequest) {
+  const session = await mongoose.startSession(); // Start session
   try {
     await connectDB();
-    
+    session.startTransaction();
+
     const { customerName, seatNumber, items } = await req.json();
-    console.log("Data Recieved my route : ", { customerName, seatNumber, items });
+    console.log("Data Received:", { customerName, seatNumber, items });
 
     if (!customerName || !seatNumber || !items || items.length === 0) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      await session.abortTransaction();
+      session.endSession();
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    let existingOrder = await order.findOne({ customerName, seatNumber });
+    let existingOrder = await order
+      .findOne({ customerName, seatNumber })
+      .session(session);
 
     for (const newItem of items) {
-      const foundItem = await item.findById(newItem.item);
+      const foundItem = await item.findById(newItem.item).session(session);
       if (!foundItem) {
-        return NextResponse.json({ error: `Item not found: ${newItem.item}` }, { status: 404 });
+        await session.abortTransaction();
+        session.endSession();
+        return NextResponse.json(
+          { error: `Item not found: ${newItem.item}` },
+          { status: 404 }
+        );
       }
 
-      const variant = foundItem.variants.find((v: any) => v.size === newItem.size);
+      const variant = foundItem.variants.find(
+        (v: any) => v.size === newItem.size
+      );
       if (!variant) {
-        return NextResponse.json({ error: `Variant not found: ${newItem.size}` }, { status: 400 });
+        await session.abortTransaction();
+        session.endSession();
+        return NextResponse.json(
+          { error: `Variant not found: ${newItem.size}` },
+          { status: 400 }
+        );
       }
 
       if (variant.stock < newItem.quantity) {
+        await session.abortTransaction();
+        session.endSession();
         return NextResponse.json(
           { error: `Not enough stock for ${foundItem.name} (${newItem.size})` },
           { status: 400 }
         );
       }
 
+      // Deduct stock
       variant.stock -= newItem.quantity;
-      await foundItem.save();
+      await foundItem.save({ session });
 
       if (existingOrder) {
         const existingItemIndex = existingOrder.items.findIndex(
-          (i: any) => String(i.item) === String(newItem.item) && i.size === newItem.size
+          (i: any) =>
+            String(i.item) === String(newItem.item) && i.size === newItem.size
         );
 
         if (existingItemIndex !== -1) {
@@ -51,21 +77,34 @@ export async function POST(req: NextRequest) {
     }
 
     if (existingOrder) {
-      await existingOrder.markModified("items");
-      await existingOrder.save();
-      return NextResponse.json({ message: "Order updated successfully", order: existingOrder }, { status: 200 });
+      existingOrder.markModified("items");
+      await existingOrder.save({ session });
+      await session.commitTransaction();
+      session.endSession();
+      return NextResponse.json(
+        { message: "Order updated successfully", order: existingOrder },
+        { status: 200 }
+      );
     }
 
-    const newOrder = await order.create({ customerName, seatNumber, items });
-    return NextResponse.json({ message: "Order placed successfully", order: newOrder }, { status: 201 });
+    const newOrder = await order.create([{ customerName, seatNumber, items }], {
+      session,
+    });
 
+    await session.commitTransaction();
+    session.endSession();
+
+    return NextResponse.json(
+      { message: "Order placed successfully", order: newOrder[0] },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error placing order:", error);
+    await session.abortTransaction();
+    session.endSession();
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
-
-
 
 
 export async function GET() {
