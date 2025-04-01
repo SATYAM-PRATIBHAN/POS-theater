@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let existingOrder = await order
+    const existingOrder = await order
       .findOne({ customerName, seatNumber })
       .session(session);
 

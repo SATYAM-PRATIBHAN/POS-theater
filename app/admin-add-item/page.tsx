@@ -24,7 +24,7 @@ export default function AddItemPage() {
     if (isUser === "true") {
       router.push("/items");
     }
-  }, []);
+  }, [router]);
 
   const handleVariantChange = (index: number, field: keyof Variant, value: string) => {
     const newVariants = [...variants];

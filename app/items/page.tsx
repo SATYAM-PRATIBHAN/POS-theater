@@ -35,17 +35,13 @@ export default function ItemsPage() {
   const [quantity, setQuantity] = useState<number>(1);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(true)
-  const router = useRouter()
+  const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
 
-  
   useEffect(() => {
     const admin = localStorage.getItem("isAdmin");
-    if(admin === "true"){
-      setIsAdmin(false)
-    }
-  }, [])
-  
+    setIsAdmin(admin === "false");
+  }, []);
 
   useEffect(() => {
     fetch("/api/items")
@@ -90,7 +86,7 @@ export default function ItemsPage() {
       (cartItem) => cartItem._id === item._id && cartItem.size === selectedVariant
     );
 
-    let newCart = [...cart];
+    const newCart = [...cart];
     if (existingItemIndex !== -1) {
       newCart[existingItemIndex].quantity += quantity;
     } else {
@@ -119,7 +115,6 @@ export default function ItemsPage() {
       return;
     }
 
-    // Check stock availability before confirming
     for (const cartItem of cart) {
       const item = items.find((i) => i._id === cartItem._id);
       const variant = item?.variants.find((v) => v.size === cartItem.size);
@@ -148,7 +143,6 @@ export default function ItemsPage() {
       const responseData = await response.json();
 
       if (response.ok) {
-        // Update stock locally
         const updatedItems = items.map((item) => {
           const cartItem = cart.find((ci) => ci._id === item._id);
           if (cartItem) {
@@ -185,9 +179,18 @@ export default function ItemsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 h-[calc(100vh-4rem)] gap-6">
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+      <div
+        className={`max-w-7xl mx-auto h-[calc(100vh-4rem)] gap-6 ${
+          isAdmin
+            ? "grid grid-cols-1 md:grid-cols-4"
+            : "flex flex-col md:flex-row justify-center items-start"
+        }`}
+      >
+        <div
+          className={`bg-white rounded-xl shadow-sm p-6 ${
+            isAdmin ? "" : "md:w-1/3 md:mr-3"
+          }`}
+        >
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Filters</h2>
           <div className="space-y-4">
             <div>
@@ -219,145 +222,160 @@ export default function ItemsPage() {
           </div>
         </div>
 
-        {/* Items List */}
-        <div className="md:col-span-2 bg-white rounded-xl shadow-sm p-6 overflow-y-auto">
+        <div
+          className={`bg-white rounded-xl shadow-sm p-6 ${
+            isAdmin ? "md:col-span-2" : "md:w-2/3"
+          }`}
+        >
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Available Items</h2>
-          {loading ? (
-            <p className="text-center text-gray-500">Loading items...</p>
-          ) : Array.isArray(filteredItems) && filteredItems.length === 0 ? (
-            <p className="text-center text-gray-500">No items found.</p>
-          ) : (
-            <div className="space-y-4">
-              {Array.isArray(filteredItems) && filteredItems.map((item) => (
-                <div key={item._id} className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                  <h3 className="text-lg font-medium text-gray-800">{item.name}</h3>
-                  <p className="text-sm text-gray-600">Category: {item.category ?? "Unknown"}</p>
-                  <div className="mt-2 space-y-1 text-sm text-gray-600">
-                    {item.variants.map((variant, index) => (
-                      <p key={index}>
-                        Size: {variant.size} | ${variant.price} | Stock: {variant.stock}
+          <div className="max-h-[calc(100vh-12rem)] overflow-y-auto">
+            {loading ? (
+              <p className="text-center text-gray-500">Loading items...</p>
+            ) : Array.isArray(filteredItems) && filteredItems.length === 0 ? (
+              <p className="text-center text-gray-500">No items found.</p>
+            ) : (
+              <div className="space-y-4">
+                {Array.isArray(filteredItems) &&
+                  filteredItems.map((item) => (
+                    <div
+                      key={item._id}
+                      className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <h3 className="text-lg font-medium text-gray-800">{item.name}</h3>
+                      <p className="text-sm text-gray-600">
+                        Category: {item.category ?? "Unknown"}
                       </p>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                      <div className="mt-2 space-y-1 text-sm text-gray-600">
+                        {item.variants.map((variant, index) => (
+                          <p key={index}>
+                            Size: {variant.size} | ${variant.price} | Stock: {variant.stock}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Cart */}
-        {isAdmin && <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Order</h2>
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Customer Name"
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Seat Number"
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={seatNumber}
-              onChange={(e) => setSeatNumber(e.target.value)}
-            />
-            <select
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={selectedItem}
-              onChange={(e) => {
-                setSelectedItem(e.target.value);
-                setSelectedVariant("");
-              }}
-            >
-              <option value="">Select Item</option>
-              {Array.isArray(items) && items.map((item) => (
-                <option key={item._id} value={item._id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-
-            {selectedItem && (
+        {isAdmin && (
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Order</h2>
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Customer Name"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Seat Number"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={seatNumber}
+                onChange={(e) => setSeatNumber(e.target.value)}
+              />
               <select
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedVariant}
-                onChange={(e) => setSelectedVariant(e.target.value)}
+                value={selectedItem}
+                onChange={(e) => {
+                  setSelectedItem(e.target.value);
+                  setSelectedVariant("");
+                }}
               >
-                <option value="">Select Size</option>
-                {items
-                  .find((item) => item._id === selectedItem)
-                  ?.variants.map((variant, index) => (
-                    <option key={index} value={variant.size}>
-                      {variant.size} - ${variant.price}
+                <option value="">Select Item</option>
+                {Array.isArray(items) &&
+                  items.map((item) => (
+                    <option key={item._id} value={item._id}>
+                      {item.name}
                     </option>
                   ))}
               </select>
-            )}
 
-            <input
-              type="number"
-              min="1"
-              placeholder="Quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            <button
-              onClick={handleAddToCart}
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Add to Cart
-            </button>
-
-            <div>
-              <h3 className="text-md font-medium text-gray-700 mb-2">Cart</h3>
-              {cart.length === 0 ? (
-                <p className="text-sm text-gray-500">Cart is empty</p>
-              ) : (
-                <div className="space-y-2">
-                  {cart.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center text-sm border-t pt-2"
-                    >
-                      <span>{item.name} ({item.size}) x {item.quantity} - ${item.price * item.quantity}</span>
-                      <button
-                        onClick={() => handleRemoveFromCart(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
+              {selectedItem && (
+                <select
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={selectedVariant}
+                  onChange={(e) => setSelectedVariant(e.target.value)}
+                >
+                  <option value="">Select Size</option>
+                  {items
+                    .find((item) => item._id === selectedItem)
+                    ?.variants.map((variant, index) => (
+                      <option key={index} value={variant.size}>
+                        {variant.size} - ${variant.price}
+                      </option>
+                    ))}
+                </select>
               )}
-            </div>
 
-            {/* Grand Total */}
-            <div className="border-t pt-2">
-              <p className="text-md font-semibold text-gray-800">
-                Grand Total: ${grandTotal.toFixed(2)}
-              </p>
-            </div>
+              <input
+                type="number"
+                min="1"
+                placeholder="Quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
 
-            <button
-              onClick={handleConfirmOrder}
-              className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Confirm Order
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Back to Home
-            </button>
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Add to Cart
+              </button>
+
+              <div>
+                <h3 className="text-md font-medium text-gray-700 mb-2">Cart</h3>
+                {cart.length === 0 ? (
+                  <p className="text-sm text-gray-500">Cart is empty</p>
+                ) : (
+                  <div className="space-y-2">
+                    {cart.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center text-sm border-t pt-2"
+                      >
+                        <span>
+                          {item.name} ({item.size}) x {item.quantity} - $
+                          {item.price * item.quantity}
+                        </span>
+                        <button
+                          onClick={() => handleRemoveFromCart(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t pt-2">
+                <p className="text-md font-semibold text-gray-800">
+                  Grand Total: ${grandTotal.toFixed(2)}
+                </p>
+              </div>
+
+              <button
+                onClick={handleConfirmOrder}
+                className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Confirm Order
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/")}
+                className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Back to Home
+              </button>
+            </div>
           </div>
-        </div>}
+        )}
       </div>
     </div>
   );

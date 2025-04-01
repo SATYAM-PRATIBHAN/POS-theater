@@ -37,7 +37,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
       <header className="bg-white shadow-sm p-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">
           {isAdmin ? "Admin Dashboard" : "User Dashboard"}
@@ -50,7 +49,6 @@ export default function HomePage() {
         </button>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 bg-white flex flex-col items-center justify-center p-6">
         <div className="max-w-5xl w-full">
           <div className="text-center mb-10">
@@ -75,7 +73,7 @@ export default function HomePage() {
                 >
                   <h3 className="text-xl font-medium text-gray-800">Add Item</h3>
                   <p className="text-gray-500 text-sm mt-1">
-                    Add new items to the menu effortlessly.
+                    Add new items
                   </p>
                 </Link>
                 <Link
@@ -84,7 +82,7 @@ export default function HomePage() {
                 >
                   <h3 className="text-xl font-medium text-gray-800">Orders</h3>
                   <p className="text-gray-500 text-sm mt-1">
-                    View and manage customer orders.
+                    View and manage orders.
                   </p>
                 </Link>
                 <Link
@@ -93,7 +91,7 @@ export default function HomePage() {
                 >
                   <h3 className="text-xl font-medium text-gray-800">Items</h3>
                   <p className="text-gray-500 text-sm mt-1">
-                    View and edit available items.
+                    View all items.
                   </p>
                 </Link>
               </>
@@ -105,7 +103,7 @@ export default function HomePage() {
               >
                 <h3 className="text-2xl font-medium text-center text-gray-800">Browse Items</h3>
                 <p className="text-gray-500 text-center text-sm mt-2">
-                  Explore our menu and start ordering.
+                  Check all Items here
                 </p>
               </Link>
             )}

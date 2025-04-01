@@ -2,25 +2,32 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/connectdb";
 import item from "@/model/item";
 
+interface Variant {
+    size: string;
+    price: number;
+    stock: number;
+}
 export async function POST(req: Request) {
+    function capitalize(word : string) {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }
     try {
         await connectDB();
 
         const body = await req.json();
         const { name, category, variants }: { name: string; category: string; variants: { size: string; price: number; stock: number }[] } = body;
-        const itemName = name.toLowerCase();
-        const itemSize = variants.map((variant) => variant.size.toUpperCase());
+        const itemName = capitalize(name)
 
         if (!name || !category || !Array.isArray(variants) || !variants.length) {
             return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
         }
 
-        let existingItem = await item.findOne({ name: itemName });
+        const existingItem = await item.findOne({ name: itemName });
 
         if (existingItem) {
-            variants.forEach((newVariant: any) => {
+            variants.forEach((newVariant: Variant) => {
                 const existingVariant = existingItem.variants.find(
-                    (variant: any) => variant.size === newVariant.size.toUpperCase()
+                    (variant: Variant) => variant.size === newVariant.size.toUpperCase()
                 );
 
                 if (existingVariant) {
@@ -28,7 +35,7 @@ export async function POST(req: Request) {
                     existingVariant.stock += Number(newVariant.stock);
                 } else {
                     existingItem.variants.push({
-                        size: itemSize,
+                        size: newVariant.size.toUpperCase(),
                         price: Number(newVariant.price),
                         stock: Number(newVariant.stock),
                     });
@@ -41,7 +48,7 @@ export async function POST(req: Request) {
             const newItem = new item({
                 name: itemName,
                 category,
-                variants: variants.map((variant: any) => ({
+                variants: variants.map((variant: Variant) => ({
                     size: variant.size.toUpperCase(),                   
                     price: Number(variant.price),
                     stock: Number(variant.stock),
@@ -66,6 +73,7 @@ export async function GET() {
   
       return NextResponse.json({ success: true, data: items }, { status: 200 });
     } catch (error) {
+        console.log(error)
       return NextResponse.json({ success: false, message: "Error fetching items" }, { status: 500 });
     }
   }

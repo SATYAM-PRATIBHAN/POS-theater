@@ -38,7 +38,6 @@ export default function OrdersPage() {
         }
 
         const response = await fetch("/api/orders");
-        if (!response.ok) throw new Error("Failed to fetch orders");
         const data = await response.json();
         setOrders(data.orders || []);
       } catch (err) {
@@ -49,7 +48,7 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, []);
+  }, [router]);
 
   const markAsDelivered = async (seatNumber: string) => {
     const confirmDelete = confirm("Are you sure you want to mark all orders for this seat as delivered?");
@@ -129,7 +128,7 @@ export default function OrdersPage() {
       <button
         type="button"
         onClick={() => router.push("/")}
-        className="ml-[38%] mt-6 w-sm bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        className="ml-[34%] mt-6 w-sm bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
       >
         Back to Home
       </button>
