@@ -116,3 +116,37 @@ export async function GET() {
     }
 }
   
+export async function DELETE(req: NextRequest) {
+  try {
+    await connectDB();
+    const { searchParams } = new URL(req.url);
+    const seatNumber = searchParams.get("seatNumber");
+
+    if (!seatNumber) {
+      return NextResponse.json(
+        { success: false, message: "Seat number is required" },
+        { status: 400 }
+      );
+    }
+
+    const deletedOrders = await order.deleteMany({ seatNumber });
+
+    if (deletedOrders.deletedCount === 0) {
+      return NextResponse.json(
+        { success: false, message: "No orders found for the given seat" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "Orders marked as delivered" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting orders:", error);
+    return NextResponse.json(
+      { success: false, message: "Error deleting orders" },
+      { status: 500 }
+    );
+  }
+}
