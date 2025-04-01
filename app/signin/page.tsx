@@ -20,7 +20,7 @@ export default function SignInPage() {
       alert(`Login successful! Redirecting to ${role} dashboard.`);
   
       if (role === "admin") {
-        localStorage.setItem("isUser", "true"); 
+        localStorage.setItem("isUser", "false"); 
         localStorage.setItem("isAdmin", "true");
         router.push("/");
       } else {
