@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface OrderItem {
@@ -21,8 +22,15 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
 
   useEffect(() => {
+
+    const isAdmin = localStorage.getItem("isAdmin");
+    if (!isAdmin) {
+      alert("Unauthorized")
+      router.push("/signin");
+    }
     const fetchOrders = async () => {
       try {
         const response = await fetch("/api/orders");

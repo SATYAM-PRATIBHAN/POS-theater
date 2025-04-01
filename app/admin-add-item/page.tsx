@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface Variant {
@@ -14,11 +14,18 @@ export default function AddItemPage() {
   const [variants, setVariants] = useState<Variant[]>([{ size: "S", price: 0, stock: 0 }]);
   const router = useRouter()
 
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("isAdmin");
+    if (!isAdmin) {
+      alert("Unauthorized")
+      router.push("/signin");
+    }
+  })
+
   const handleButton = () => {
     router.push("/")
   }
   
-
   const handleVariantChange = (index: number, field: keyof Variant, value: string) => {
     const newVariants = [...variants];
     if (field === "price" || field === "stock") {

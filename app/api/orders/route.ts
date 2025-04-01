@@ -11,7 +11,6 @@ export async function POST(req: NextRequest) {
     session.startTransaction();
 
     const { customerName, seatNumber, items } = await req.json();
-    console.log("Data Received:", { customerName, seatNumber, items });
 
     if (!customerName || !seatNumber || !items || items.length === 0) {
       await session.abortTransaction();

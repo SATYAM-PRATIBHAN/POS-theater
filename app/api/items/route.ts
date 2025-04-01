@@ -63,7 +63,6 @@ export async function GET() {
     try {
       await connectDB();
       const items = await item.find().populate("category");
-      console.log(items);
   
       return NextResponse.json({ success: true, data: items }, { status: 200 });
     } catch (error) {
