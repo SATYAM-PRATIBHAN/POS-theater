@@ -26,13 +26,19 @@ export default function OrdersPage() {
 
   useEffect(() => {
 
-    const isAdmin = localStorage.getItem("isAdmin");
-    if (!isAdmin) {
-      alert("Unauthorized")
-      router.push("/signin");
-    }
+    
     const fetchOrders = async () => {
       try {
+        const isAdmin = localStorage.getItem("isAdmin");
+        const isUSer = localStorage.getItem("isUser")
+        if (isAdmin === "false" && isUSer === "true") {
+          alert("Unauthorized")
+          router.push("/signin");
+        }
+        if (isUSer === "true"){
+          router.push("/items");
+        }
+
         const response = await fetch("/api/orders");
         if (!response.ok) {
           throw new Error("Failed to fetch orders");

@@ -16,11 +16,15 @@ export default function AddItemPage() {
 
   useEffect(() => {
     const isAdmin = localStorage.getItem("isAdmin");
-    if (!isAdmin) {
+    const isUSer = localStorage.getItem("isUser")
+    if (isAdmin === "false" && isUSer === "true") {
       alert("Unauthorized")
       router.push("/signin");
     }
-  })
+    if (isUSer === "true"){
+      router.push("/items");
+    }
+  }, [])
 
   const handleButton = () => {
     router.push("/")
