@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     const existingOrder = await order
-      .findOne({ customerName, seatNumber })
+      .findOne({ customerName, seatNumber})
       .session(session);
 
     for (const newItem of items) {
